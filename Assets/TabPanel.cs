@@ -9,11 +9,17 @@ using UnityEngine.UI;
 public class TabPanel : EditorWindow
 {
     private string[] toolbarStrings = {"New Scenario", "Load Scenario", "Create Quest"};
-    private int _toolbar_sel = 0;
+    private int _toolbar_selection = 0;
+
+    private ScenarioScriptable[] scenarioList;
+    private string[] scenarioStringList;
+    private ScenarioScriptable scenario;
+
+    private int indexScenario;
     
     private Vector2 offset;
     private Vector2 drag;
-
+    
     
     [MenuItem("Window/TabPanel")]
     public static void ShowWindow()
@@ -22,40 +28,50 @@ public class TabPanel : EditorWindow
         window.Show();
     }
 
+    private void OnEnable()
+    {
+        var textures = Resources.LoadAll("ScenarioScriptable", typeof(ScenarioScriptable)).Cast<ScenarioScriptable>().ToArray();
+        scenarioList = Resources.LoadAll("ScenarioScriptable") as ScenarioScriptable[]; //Load all Scenario from scenario folder 
+        foreach (var scenar in scenarioList)
+        {
+            Debug.Log(scenar.name);
+        }
+        foreach (var scenar in textures)
+        {
+            Debug.Log(scenar.name);
+        }
+        scenarioStringList = new string[scenarioList.Length];
+        for (int i = 0; i < scenarioStringList.Length; i++)
+        {
+            scenarioStringList[i] = scenarioList[i].name;
+        }
+    }
     private void OnGUI()
     {
         GUILayout.BeginHorizontal();
-        _toolbar_sel = GUILayout.Toolbar(_toolbar_sel, toolbarStrings);
+        _toolbar_selection = GUILayout.Toolbar(_toolbar_selection, toolbarStrings);
         GUILayout.EndHorizontal();
 
-        switch (_toolbar_sel)
+        switch (_toolbar_selection)
         {
             case 0 :
-                //Get the info from the script
                 GUILayout.Label("New Scenario");
                 if (GUILayout.Button("DrawGrid"))
-                {
                     DrawGrid(20f,0.2f,Color.gray);
-                }
                 break;
             case 1 :
-                //Get the info from the script
                 GUILayout.Label("Load Scenario");
+                indexScenario = EditorGUILayout.Popup(indexScenario, scenarioStringList);
                 if (GUILayout.Button("DrawGrid"))
-                {
                     DrawGrid(20f,0.2f,Color.blue);
-                }
+                    LoadScenario(scenarioList.ToList().Find(x => x.name == scenarioStringList[indexScenario]));
                 break;
-            case 2 : 
-                //Get the info from the script
+            case 2 :
                 GUILayout.Label("Create Quest");
                 if (GUILayout.Button("DrawGrid"))
-                {
                     DrawGrid(20f,0.2f,Color.yellow);
-                }
                 break;
         }
-        if (GUI.changed) Repaint();
     }
     
     private void DrawGrid(float gridSpacing, float gridOpacity, Color gridColor)
@@ -84,13 +100,9 @@ public class TabPanel : EditorWindow
         Handles.color = Color.white;
         Handles.EndGUI();
     }
-    
-    private void OnEnable()
+
+    private void LoadScenario(ScenarioScriptable scenario)
     {
-
-
+        //Create all the nodes depending on the scenario 
     }
-
-
-
 }
