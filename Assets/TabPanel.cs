@@ -11,10 +11,12 @@ public class TabPanel : EditorWindow
     private string[] toolbarStrings = {"New Scenario", "Load Scenario", "Create Quest"};
     private int _toolbar_selection = 0;
 
-    private ScenarioScriptable[] scenarioList;
-    private string[] scenarioStringList;
+    private ScenarioScriptable[] scenarioArray;
+    private string[] scenarioStringArray;
     private ScenarioScriptable scenario;
 
+    private GameObject[] goArray;
+    
     private int indexScenario;
     
     private Vector2 offset;
@@ -30,20 +32,12 @@ public class TabPanel : EditorWindow
 
     private void OnEnable()
     {
-        var textures = Resources.LoadAll("ScenarioScriptable", typeof(ScenarioScriptable)).Cast<ScenarioScriptable>().ToArray();
-        scenarioList = Resources.LoadAll("ScenarioScriptable") as ScenarioScriptable[]; //Load all Scenario from scenario folder 
-        foreach (var scenar in scenarioList)
+        scenarioArray = Resources.LoadAll("ScenarioScriptable",
+            typeof(ScenarioScriptable)).Cast<ScenarioScriptable>().ToArray();
+        scenarioStringArray = new string[scenarioArray.Length];
+        for (int i = 0; i < scenarioStringArray.Length; i++)
         {
-            Debug.Log(scenar.name);
-        }
-        foreach (var scenar in textures)
-        {
-            Debug.Log(scenar.name);
-        }
-        scenarioStringList = new string[scenarioList.Length];
-        for (int i = 0; i < scenarioStringList.Length; i++)
-        {
-            scenarioStringList[i] = scenarioList[i].name;
+            scenarioStringArray[i] = scenarioArray[i].name;
         }
     }
     private void OnGUI()
@@ -61,10 +55,17 @@ public class TabPanel : EditorWindow
                 break;
             case 1 :
                 GUILayout.Label("Load Scenario");
-                indexScenario = EditorGUILayout.Popup(indexScenario, scenarioStringList);
-                if (GUILayout.Button("DrawGrid"))
-                    DrawGrid(20f,0.2f,Color.blue);
-                    LoadScenario(scenarioList.ToList().Find(x => x.name == scenarioStringList[indexScenario]));
+                GUILayout.BeginHorizontal();
+                indexScenario = EditorGUILayout.Popup(indexScenario, scenarioStringArray);
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
+                if (GUILayout.Button("DrawGrid"))//If user click on button
+                {   
+                    DrawGrid(20f,0.2f,Color.blue); // Draw the Grid
+                    LoadScenario(scenarioArray.ToList() // Create nodes from scenario SO
+                        .Find(x => x.name == scenarioStringArray[indexScenario]));
+                    
+                }
                 break;
             case 2 :
                 GUILayout.Label("Create Quest");
@@ -103,6 +104,7 @@ public class TabPanel : EditorWindow
 
     private void LoadScenario(ScenarioScriptable scenario)
     {
+        this.scenario = scenario;
         //Create all the nodes depending on the scenario 
     }
 }
